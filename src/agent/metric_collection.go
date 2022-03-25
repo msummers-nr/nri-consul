@@ -13,7 +13,9 @@ func CollectMetrics(agents []*Agent) {
 	agentChan := createMetricPool(&wg)
 
 	for _, agent := range agents {
-		agentChan <- agent
+		if agent.Available {
+			agentChan <- agent
+		}
 	}
 
 	close(agentChan)
@@ -57,16 +59,22 @@ func CollectMetricsFromOne(agent *Agent) {
 	// Collect core metrics
 	if err := agent.CollectCoreMetrics(metricSet, gaugeMetrics, counterMetrics, timerMetrics); err != nil {
 		log.Error("Error collecting core metrics for Agent '%s': %s", agent.entity.Metadata.Name, err.Error())
+		agent.Available = false
+		return
 	}
 
 	// Peer Count
 	if err := agent.collectPeerCount(metricSet); err != nil {
 		log.Error("Error collecting peer count for Agent '%s': %s", agent.entity.Metadata.Name, err.Error())
+		agent.Available = false
+		return
 	}
 
 	// Latency metrics
 	if err := agent.collectLatencyMetrics(metricSet); err != nil {
 		log.Error("Error collecting latency metrics for Agent '%s': %s", agent.entity.Metadata.Name, err.Error())
+		agent.Available = false
+		return
 	}
 
 }

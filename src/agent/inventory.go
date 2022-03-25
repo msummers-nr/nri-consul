@@ -12,7 +12,9 @@ func CollectInventory(agents []*Agent) {
 	agentChan := createInventoryPool(&wg)
 
 	for _, agent := range agents {
-		agentChan <- agent
+		if agent.Available {
+			agentChan <- agent
+		}
 	}
 
 	close(agentChan)
@@ -43,11 +45,12 @@ func inventoryWorker(agentChan <-chan *Agent, wg *sync.WaitGroup) {
 	}
 }
 
-//CollectInventoryFromOne collects inventory data for a single agent entity
+// CollectInventoryFromOne collects inventory data for a single agent entity
 func CollectInventoryFromOne(agent *Agent) {
 	selfData, err := agent.Client.Agent().Self()
 	if err != nil {
 		log.Error("Error retrieving self configuration data for Agent '%s': %s", agent.entity.Metadata.Name, err.Error())
+		agent.Available = false
 		return
 	}
 

@@ -29,11 +29,13 @@ func NewDatacenter(leader *agent.Agent, i *integration.Integration) (*Datacenter
 
 	dcName, err := getDatacenterName(leader.Client)
 	if err != nil {
+		leader.Available = false
 		return nil, err
 	}
 
 	dcEntity, err := i.Entity(*dcName, "co-datacenter")
 	if err != nil {
+		leader.Available = false
 		return nil, err
 	}
 

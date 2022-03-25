@@ -23,6 +23,7 @@ const workerCount = 5
 type Agent struct {
 	entity     *integration.Entity
 	Client     *api.Client
+	Available  bool
 	datacenter string
 	ipAddr     string
 	name       string
@@ -80,6 +81,7 @@ func NewAgent(client *api.Client, entity *integration.Entity, name, ipAddr, data
 		ipAddr:     ipAddr,
 		datacenter: datacenter,
 		name:       name,
+		Available:  true,
 	}
 }
 
